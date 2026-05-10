@@ -3,149 +3,293 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Saba x Rillet Working Session</title>
+<title>Saba x Rillet · Working session</title>
 <style>
   :root {
     --aura: #5B47E0;
     --aura-hover: #6852E8;
-    --aura-soft: #E5DEFC;
-    --aura-softer: #F1EEFD;
-    --aura-border: #5B47E0;
-    --aura-text: #1F1746;
+    --aura-soft: #F1EEFD;
+    --aura-softer: #F8F6FE;
+    --aura-text: #3525A8;
+    --aura-border: #E2DCF9;
 
     --ink: #0F1117;
     --ink-2: #41434C;
     --ink-3: #6E707A;
+    --ink-4: #A1A3AB;
 
-    --line: #D8D9DD;
+    --line: #ECEDF1;
+    --line-soft: #F4F4F7;
     --bg: #FFFFFF;
     --bg-soft: #FAFAFB;
-    --frame-bg: #B5B6BC;
+    --bg-tint: #F6F7F9;
 
     --font: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
-  html, body {
-    height: 100%;
-  }
+  html, body { height: 100%; }
 
   body {
     background: var(--bg-soft);
     color: var(--ink);
     font-family: var(--font);
+    font-size: 15px;
     -webkit-font-smoothing: antialiased;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
+    flex-direction: column;
     min-height: 100vh;
   }
 
-  .frame {
-    width: 100%;
-    max-width: 1180px;
+  /* Topbar matching Rillet AR */
+  .topbar {
+    height: 52px;
+    border-bottom: 1px solid var(--line);
     background: var(--bg);
-    border: 6px solid var(--frame-bg);
-    border-radius: 16px;
-    padding: 80px 80px 110px;
-    min-height: 720px;
     display: flex;
-    flex-direction: column;
     align-items: center;
+    padding: 0 20px;
   }
-
-  .header {
-    text-align: center;
-    margin-bottom: 80px;
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
-
-  h1 {
-    font-size: 36px;
-    font-weight: 600;
-    letter-spacing: -0.015em;
-    color: var(--ink);
-    margin-bottom: 14px;
-    line-height: 1.15;
+  .brand-mark {
+    width: 22px; height: 22px; border-radius: 6px;
+    background: var(--aura);
+    display: inline-flex; align-items: center; justify-content: center;
   }
-
-  .subtitle {
-    font-size: 22px;
-    font-style: italic;
-    font-weight: 400;
-    color: var(--ink);
-    line-height: 1.3;
+  .brand-mark::before, .brand-mark::after {
+    content: '';
+    width: 3px; height: 3px;
+    background: #fff; border-radius: 50%;
+    margin: 0 1px;
   }
+  .brand-name { font-weight: 500; letter-spacing: -0.01em; font-size: 15px; }
+  .brand-divider { width: 1px; height: 14px; background: var(--line); margin: 0 4px; }
+  .brand-section { color: var(--ink-3); font-size: 13px; }
 
-  .grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 80px;
-    width: 100%;
-    max-width: 920px;
-  }
-
-  .tile {
-    aspect-ratio: 1 / 1;
-    max-width: 380px;
-    width: 100%;
-    margin: 0 auto;
-    background: var(--aura-soft);
-    border: 4px solid var(--aura-border);
-    border-radius: 24px;
+  /* Hero */
+  main {
+    flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    text-align: center;
+    padding: 64px 24px 96px;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 1040px;
+  }
+
+  .eyebrow {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
     color: var(--aura-text);
-    font-size: 28px;
+    margin-bottom: 14px;
     font-weight: 500;
-    line-height: 1.3;
+  }
+
+  h1 {
+    font-size: 44px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    margin-bottom: 14px;
+    color: var(--ink);
+  }
+
+  .subtitle {
+    color: var(--ink-3);
+    font-size: 17px;
+    line-height: 1.5;
+    max-width: 56ch;
+  }
+
+  .header-block {
+    margin-bottom: 56px;
+  }
+
+  /* Cards grid */
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .tile {
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 28px 28px 24px;
     text-decoration: none;
-    padding: 32px;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    min-height: 260px;
     cursor: pointer;
-    transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+    transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease;
   }
 
   .tile:hover {
-    background: #DACFFB;
-    transform: translateY(-2px);
-    box-shadow: 0 12px 32px rgba(91, 71, 224, 0.22);
+    border-color: var(--aura-border);
+    box-shadow: 0 1px 2px rgba(15,17,23,0.04), 0 8px 24px rgba(91,71,224,0.08);
+    transform: translateY(-1px);
   }
 
-  .tile:active {
-    transform: translateY(0);
-    box-shadow: 0 4px 12px rgba(91, 71, 224, 0.18);
+  .tile-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 22px;
+  }
+
+  .tile-mark {
+    width: 36px; height: 36px;
+    border-radius: 9px;
+    background: var(--aura-soft);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--aura-text);
+  }
+
+  .tile-mark svg { display: block; }
+
+  .tile-meta {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-4);
+    font-weight: 500;
+  }
+
+  .tile-title {
+    font-size: 22px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    line-height: 1.25;
+    margin-bottom: 10px;
+    color: var(--ink);
+  }
+
+  .tile-desc {
+    color: var(--ink-3);
+    font-size: 14px;
+    line-height: 1.55;
+    margin-bottom: auto;
+  }
+
+  .tile-foot {
+    margin-top: 22px;
+    padding-top: 16px;
+    border-top: 1px solid var(--line-soft);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--aura-text);
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .tile-foot .arrow {
+    transition: transform .15s ease;
+  }
+  .tile:hover .tile-foot .arrow {
+    transform: translateX(3px);
+  }
+
+  /* Footer note */
+  footer {
+    padding: 18px 24px;
+    color: var(--ink-4);
+    font-size: 12px;
+    border-top: 1px solid var(--line-soft);
+    text-align: center;
   }
 
   @media (max-width: 760px) {
-    .frame { padding: 48px 32px 64px; }
-    h1 { font-size: 28px; }
-    .subtitle { font-size: 18px; }
-    .header { margin-bottom: 48px; }
-    .grid { grid-template-columns: 1fr; gap: 32px; }
-    .tile { font-size: 22px; max-width: 320px; }
+    h1 { font-size: 32px; }
+    .subtitle { font-size: 15px; }
+    .grid { grid-template-columns: 1fr; gap: 14px; }
+    .tile { min-height: 0; padding: 22px 22px 20px; }
+    .header-block { margin-bottom: 36px; }
+    main { padding: 36px 20px 64px; }
   }
 </style>
 </head>
 <body>
 
-<div class="frame">
-  <header class="header">
-    <h1>Saba x Rillet Working Session</h1>
-    <p class="subtitle">Visuals are fast drafts to drive conversation</p>
-  </header>
-
-  <div class="grid">
-    <a class="tile" href="patterns.html">
-      Design Patterns<br>for AI Native<br>Design
-    </a>
-    <a class="tile" href="rillet.html">
-      Rillet<br>AR Prototype
-    </a>
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark"></span>
+    <span class="brand-name">Rillet</span>
+    <span class="brand-divider"></span>
+    <span class="brand-section">Working session</span>
   </div>
-</div>
+</header>
+
+<main>
+  <div class="container">
+
+    <div class="header-block">
+      <div class="eyebrow">Saba × Rillet</div>
+      <h1>Working session.</h1>
+      <p class="subtitle">Two short prototypes to drive conversation. Visuals are fast drafts — open either one.</p>
+    </div>
+
+    <div class="grid">
+
+      <a class="tile" href="patterns.html">
+        <div class="tile-head">
+          <span class="tile-mark">
+            <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
+              <rect x="2" y="2" width="5" height="5" rx="1" fill="currentColor"/>
+              <rect x="9" y="2" width="5" height="5" rx="1" fill="currentColor" opacity="0.55"/>
+              <rect x="2" y="9" width="5" height="5" rx="1" fill="currentColor" opacity="0.55"/>
+              <rect x="9" y="9" width="5" height="5" rx="1" fill="currentColor" opacity="0.3"/>
+            </svg>
+          </span>
+          <span class="tile-meta">11 patterns</span>
+        </div>
+        <div class="tile-title">Design patterns for AI-native design.</div>
+        <div class="tile-desc">A glossary, then each pattern shown applied to a higher-stakes judgement flow — Account Collections.</div>
+        <div class="tile-foot">
+          <span>Open</span>
+          <span class="arrow">→</span>
+        </div>
+      </a>
+
+      <a class="tile" href="rillet.html">
+        <div class="tile-head">
+          <span class="tile-mark">
+            <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
+              <rect x="2.5" y="3.5" width="11" height="9" rx="2" fill="currentColor"/>
+              <circle cx="6" cy="8" r="1.1" fill="white"/>
+              <circle cx="10" cy="8" r="1.1" fill="white"/>
+            </svg>
+          </span>
+          <span class="tile-meta">10 steps · walkthrough</span>
+        </div>
+        <div class="tile-title">Rillet AR agent prototype.</div>
+        <div class="tile-desc">Click through a 10-step Accounts Receivable flow — contract to write-off, plus a final orchestration & plan layer.</div>
+        <div class="tile-foot">
+          <span>Open</span>
+          <span class="arrow">→</span>
+        </div>
+      </a>
+
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  Visuals are fast drafts to drive conversation.
+</footer>
 
 </body>
 </html>

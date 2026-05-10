@@ -439,9 +439,39 @@
   .closing p { color: var(--ink-2); max-width: 64ch; line-height: 1.7; margin: 0 0 18px; }
   .closing p:last-child { margin-bottom: 0; }
 
+  /* Back-to-home affordance */
+  .home-link {
+    position: fixed;
+    top: 16px;
+    left: 18px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 12px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: var(--r-pill);
+    color: var(--ink-2);
+    font-size: 12px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: border-color .12s ease, color .12s ease, background .12s ease;
+    z-index: 50;
+  }
+  .home-link:hover {
+    border-color: var(--aura-border);
+    color: var(--aura-text);
+    background: var(--aura-softer);
+  }
+  .home-link .arrow { font-size: 13px; line-height: 1; }
+  @media (max-width: 600px) {
+    .home-link { top: 10px; left: 10px; padding: 6px 10px; font-size: 11px; }
+  }
 </style>
 </head>
 <body>
+
+<a class="home-link" href="index.html"><span class="arrow">←</span> Working session</a>
 
 <div class="container">
 
