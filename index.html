@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Saba x Rillet Working Session</title>
+<style>
+  :root {
+    --aura: #5B47E0;
+    --aura-hover: #6852E8;
+    --aura-soft: #E5DEFC;
+    --aura-softer: #F1EEFD;
+    --aura-border: #5B47E0;
+    --aura-text: #1F1746;
+
+    --ink: #0F1117;
+    --ink-2: #41434C;
+    --ink-3: #6E707A;
+
+    --line: #D8D9DD;
+    --bg: #FFFFFF;
+    --bg-soft: #FAFAFB;
+    --frame-bg: #B5B6BC;
+
+    --font: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+  }
+
+  body {
+    background: var(--bg-soft);
+    color: var(--ink);
+    font-family: var(--font);
+    -webkit-font-smoothing: antialiased;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    min-height: 100vh;
+  }
+
+  .frame {
+    width: 100%;
+    max-width: 1180px;
+    background: var(--bg);
+    border: 6px solid var(--frame-bg);
+    border-radius: 16px;
+    padding: 80px 80px 110px;
+    min-height: 720px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 80px;
+  }
+
+  h1 {
+    font-size: 36px;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--ink);
+    margin-bottom: 14px;
+    line-height: 1.15;
+  }
+
+  .subtitle {
+    font-size: 22px;
+    font-style: italic;
+    font-weight: 400;
+    color: var(--ink);
+    line-height: 1.3;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    width: 100%;
+    max-width: 920px;
+  }
+
+  .tile {
+    aspect-ratio: 1 / 1;
+    max-width: 380px;
+    width: 100%;
+    margin: 0 auto;
+    background: var(--aura-soft);
+    border: 4px solid var(--aura-border);
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: var(--aura-text);
+    font-size: 28px;
+    font-weight: 500;
+    line-height: 1.3;
+    text-decoration: none;
+    padding: 32px;
+    cursor: pointer;
+    transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .tile:hover {
+    background: #DACFFB;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(91, 71, 224, 0.22);
+  }
+
+  .tile:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 12px rgba(91, 71, 224, 0.18);
+  }
+
+  @media (max-width: 760px) {
+    .frame { padding: 48px 32px 64px; }
+    h1 { font-size: 28px; }
+    .subtitle { font-size: 18px; }
+    .header { margin-bottom: 48px; }
+    .grid { grid-template-columns: 1fr; gap: 32px; }
+    .tile { font-size: 22px; max-width: 320px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="frame">
+  <header class="header">
+    <h1>Saba x Rillet Working Session</h1>
+    <p class="subtitle">Visuals are fast drafts to drive conversation</p>
+  </header>
+
+  <div class="grid">
+    <a class="tile" href="patterns.html">
+      Design Patterns<br>for AI Native<br>Design
+    </a>
+    <a class="tile" href="rillet.html">
+      Rillet<br>AR Prototype
+    </a>
+  </div>
+</div>
+
+</body>
+</html>

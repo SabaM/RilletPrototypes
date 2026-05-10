@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design patterns I like — Account Collections</title>
+<style>
+  :root {
+    --aura: #5B47E0;
+    --aura-hover: #6852E8;
+    --aura-soft: #F1EEFD;
+    --aura-softer: #F8F6FE;
+    --aura-text: #3525A8;
+    --aura-border: #E2DCF9;
+
+    --ink: #0F1117;
+    --ink-2: #41434C;
+    --ink-3: #6E707A;
+    --ink-4: #A1A3AB;
+
+    --line: #ECEDF1;
+    --line-soft: #F4F4F7;
+    --bg: #FFFFFF;
+    --bg-soft: #FAFAFB;
+    --bg-tint: #F6F7F9;
+
+    --good-bg: #EDF8F1;
+    --good-text: #1F7A45;
+    --warn-bg: #FBF3DC;
+    --warn-text: #87571A;
+    --risk-bg: #FBECEC;
+    --risk-text: #A1322F;
+
+    --r-sm: 6px;
+    --r-md: 10px;
+    --r-lg: 14px;
+    --r-xl: 18px;
+    --r-pill: 999px;
+
+    --shadow-card: 0 1px 2px rgba(15, 17, 23, 0.04), 0 1px 8px rgba(15, 17, 23, 0.04);
+
+    --font: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg-soft);
+    color: var(--ink);
+    font-family: var(--font);
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .container {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 64px 28px 96px;
+  }
+
+  header.doc-header {
+    margin-bottom: 56px;
+  }
+
+  h1 {
+    font-size: 32px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    margin: 0 0 8px;
+    line-height: 1.2;
+  }
+
+  .subtitle {
+    color: var(--ink-3);
+    font-size: 16px;
+    margin: 0;
+    max-width: 60ch;
+  }
+
+  h2 {
+    font-size: 20px;
+    font-weight: 500;
+    letter-spacing: -0.005em;
+    margin: 0 0 12px;
+  }
+
+  .section-sub {
+    color: var(--ink-3);
+    font-size: 14px;
+    margin: 0 0 20px;
+    max-width: 64ch;
+    line-height: 1.6;
+  }
+
+  section.family {
+    margin-top: 64px;
+    padding-top: 48px;
+    border-top: 1px solid var(--line);
+  }
+
+  section.glossary {
+    margin-top: 48px;
+  }
+
+  /* glossary table */
+  .matrix-card {
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+  }
+
+  .matrix-row {
+    display: grid;
+    grid-template-columns: minmax(180px, 1fr) minmax(0, 2.4fr);
+    gap: 24px;
+    padding: 16px 22px;
+    align-items: baseline;
+    border-bottom: 1px solid var(--line-soft);
+    font-size: 14px;
+  }
+
+  .matrix-row:last-child { border-bottom: none; }
+
+  .matrix-row .name { font-weight: 500; color: var(--ink); }
+  .matrix-row .note { color: var(--ink-3); font-size: 14px; line-height: 1.6; }
+
+  .matrix-family {
+    background: var(--bg-tint);
+    padding: 12px 22px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink-3);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--line-soft);
+  }
+
+  /* pattern block */
+  .pattern {
+    margin-top: 36px;
+  }
+
+  .pattern-head {
+    margin-bottom: 8px;
+  }
+
+  .pattern-head h3 {
+    font-size: 17px;
+    font-weight: 500;
+    margin: 0;
+    letter-spacing: -0.005em;
+    color: var(--ink);
+  }
+  .pattern-head h3 .num { color: var(--aura); margin-right: 8px; font-variant-numeric: tabular-nums; font-weight: 500; }
+
+  .pattern-move {
+    color: var(--ink-3);
+    font-size: 14px;
+    line-height: 1.65;
+    margin: 0 0 16px;
+    max-width: 64ch;
+  }
+
+  /* mockup surfaces */
+  .mock-frame {
+    background: var(--bg-tint);
+    border-radius: var(--r-xl);
+    padding: 18px;
+  }
+
+  .mock-card {
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+  }
+
+  .mock-pad { padding: 16px 20px; }
+  .mock-divider { border-top: 1px solid var(--line-soft); }
+
+  .mock-banner {
+    padding: 10px 20px;
+    font-size: 12px;
+    background: var(--warn-bg);
+    color: var(--warn-text);
+    border-bottom: 1px solid var(--line-soft);
+  }
+
+  .mock-banner.aura {
+    background: var(--aura-soft);
+    color: var(--aura-text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .mock-banner .bot { width: 14px; height: 14px; }
+
+  .mock-label {
+    font-size: 11px;
+    color: var(--ink-3);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .mock-meta {
+    display: grid;
+    grid-template-columns: 80px minmax(0,1fr);
+    gap: 6px 14px;
+    font-size: 13px;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .mock-meta .k { color: var(--ink-3); }
+  .mock-meta .v { color: var(--ink); }
+
+  .mock-body {
+    background: var(--bg-tint);
+    border-radius: var(--r-md);
+    padding: 12px 14px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--ink-2);
+    margin-bottom: 14px;
+  }
+
+  .mock-body.aura {
+    background: var(--aura-softer);
+    border-left: 3px solid var(--aura);
+    padding-left: 14px;
+    border-radius: 0 var(--r-md) var(--r-md) 0;
+  }
+
+  .mock-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .mock-table th {
+    text-align: left;
+    font-weight: 500;
+    color: var(--ink-3);
+    font-size: 12px;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--line-soft);
+    background: var(--bg-tint);
+  }
+  .mock-table th.num { text-align: right; }
+  .mock-table td {
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--line-soft);
+    vertical-align: middle;
+  }
+  .mock-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .mock-table tr:last-child td { border-bottom: none; }
+  .mock-table tr.highlight td { background: var(--aura-softer); }
+  .mock-table tr.evidence td {
+    background: var(--bg-tint);
+    padding: 14px 20px 16px;
+  }
+  .mock-table tr.evidence .ev-rows {
+    display: grid;
+    gap: 4px;
+    line-height: 1.7;
+    color: var(--ink-2);
+    font-size: 13px;
+  }
+
+  .ent { color: var(--ink); border-bottom: 1px dotted var(--ink-4); cursor: default; }
+  .ent.aura-ref { color: var(--aura); border-bottom-color: var(--aura); }
+
+  /* small chips */
+  .pill {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 10px;
+    border-radius: var(--r-pill);
+    letter-spacing: 0.01em;
+  }
+  .pill.good { background: var(--good-bg); color: var(--good-text); }
+  .pill.warn { background: var(--warn-bg); color: var(--warn-text); }
+  .pill.risk { background: var(--risk-bg); color: var(--risk-text); }
+  .pill.aura { background: var(--aura-soft); color: var(--aura-text); display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px 3px 6px; }
+  .pill.aura .bot { width: 12px; height: 12px; }
+
+  /* buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 7px 14px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    cursor: default;
+    transition: background .12s ease;
+  }
+  .btn:hover { background: var(--bg-tint); }
+  .btn.primary {
+    background: var(--aura);
+    color: white;
+    border-color: var(--aura);
+  }
+  .btn.primary:hover { background: var(--aura-hover); }
+  .btn.aura-ghost {
+    background: var(--aura-soft);
+    color: var(--aura-text);
+    border-color: var(--aura-border);
+  }
+  .btn.aura-ghost:hover { background: var(--aura-soft); }
+  .btn.tiny { padding: 4px 10px; font-size: 11px; border-radius: 6px; }
+  .btn.danger { color: var(--risk-text); }
+
+  .btn-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  /* layouts */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .grid-3-2 { display: grid; grid-template-columns: 3fr 2fr; gap: 12px; }
+
+  /* maturity track */
+  .track {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    margin: 12px 0 18px;
+  }
+  .track::before {
+    content: "";
+    position: absolute;
+    top: 13px;
+    left: 12.5%;
+    right: 12.5%;
+    height: 2px;
+    background: var(--line);
+  }
+  .track-stage {
+    text-align: center;
+    position: relative;
+    z-index: 1;
+  }
+  .track-stage .dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 2px solid var(--line);
+    margin: 0 auto 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .track-stage.done .dot {
+    border-color: var(--good-text);
+  }
+  .track-stage.done .dot::after {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--good-text);
+  }
+  .track-stage.current .dot {
+    background: var(--aura);
+    border-color: var(--aura);
+    box-shadow: 0 0 0 4px var(--aura-soft);
+  }
+  .track-stage .label {
+    font-size: 12px;
+    color: var(--ink-3);
+  }
+  .track-stage.current .label { color: var(--ink); font-weight: 500; }
+
+  /* ask-aura panel */
+  .ask-aura {
+    background: var(--aura-softer);
+    border: 1px solid var(--aura-border);
+    border-radius: var(--r-md);
+    padding: 14px;
+  }
+  .ask-aura .input {
+    background: var(--bg);
+    border: 1px solid var(--aura-border);
+    border-radius: var(--r-sm);
+    padding: 8px 10px;
+    font-size: 12px;
+    color: var(--ink-2);
+    line-height: 1.5;
+    margin-bottom: 10px;
+    font-family: var(--mono);
+  }
+
+  /* progress callouts */
+  .callout {
+    background: var(--aura-softer);
+    border-radius: var(--r-md);
+    padding: 12px 14px;
+    font-size: 13px;
+    line-height: 1.65;
+    color: var(--ink-2);
+  }
+  .callout .label { font-size: 11px; color: var(--ink-3); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.02em; }
+
+  /* small helpers */
+  .row { display: flex; align-items: center; gap: 10px; }
+  .between { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .stat-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 13px; }
+  .stat-row .v { font-variant-numeric: tabular-nums; }
+  .pos { color: var(--good-text); }
+  .neg { color: var(--risk-text); }
+  .muted { color: var(--ink-3); }
+  .num { font-variant-numeric: tabular-nums; }
+  .x { color: var(--risk-text); font-weight: 500; }
+
+  /* closing */
+  .closing {
+    margin-top: 80px;
+    padding-top: 48px;
+    border-top: 1px solid var(--line);
+  }
+  .closing h2 { margin-bottom: 20px; }
+  .closing p { color: var(--ink-2); max-width: 64ch; line-height: 1.7; margin: 0 0 18px; }
+  .closing p:last-child { margin-bottom: 0; }
+
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<header class="doc-header">
+  <h1>Design patterns I like.</h1>
+  <p class="subtitle">Applied to a higher-stakes judgement flow: Account Collections.</p>
+</header>
+
+<section class="glossary">
+  <h2>The patterns</h2>
+
+  <div class="matrix-card">
+
+    <div class="matrix-family">Family A. Making the agent legible</div>
+
+    <div class="matrix-row">
+      <div class="name">Intent preview</div>
+      <div class="note">The agent shows what it's about to do before doing it. Recipient, content, tone, and confidence at a glance, with explicit buttons to send, edit, skip, or take it over.</div>
+    </div>
+    <div class="matrix-row">
+      <div class="name">Confidence + evidence</div>
+      <div class="note">Calibrated bands instead of false-precision percentages. Supporting evidence sits inline rather than behind a hover, so the user can verify any score without leaving the surface.</div>
+    </div>
+    <div class="matrix-row">
+      <div class="name">Explainability on demand</div>
+      <div class="note">A "why" surface available when the user asks. Shows what was inferred, the data that was used, and the alternatives the agent considered and rejected.</div>
+    </div>
+    <div class="matrix-row">
+      <div class="name">Reversibility</div>
+      <div class="note">A recovery path for every agent action. For things that can't be literally undone, like a sent email, the agent drafts the correction in its own voice and takes responsibility.</div>
+    </div>
+
+    <div class="matrix-family">Family B. Where the agent lives</div>
+
+    <div class="matrix-row">
+      <div class="name">Inline microinteraction</div>
+      <div class="note">Small contextual cards that surface the agent inside the user's normal workflow. They live in the row, the report, the table cell, wherever the user already is, instead of asking them to navigate to a separate destination.</div>
+    </div>
+    <div class="matrix-row">
+      <div class="name">Side panel, console</div>
+      <div class="note">A persistent home for the agent's state. Goal, queue, progress, and autonomy distribution live here permanently. The user returns to it across sessions. It's a state surface, not a chat.</div>
+    </div>
+    <div class="matrix-row">
+      <div class="name">Proactive nudge</div>
+      <div class="note">Behavioral signals the user didn't ask for, in a low-claim tray. Snooze and dismiss are first-class affordances, and the agent silences its own categories of nudge if they keep getting ignored.</div>
+    </div>
+
+    <div class="matrix-family">Family C. Calibrating the partnership</div>
+
+    <div class="matrix-row">
+      <div class="name">Autonomy dial</div>
+      <div class="note">Per-task control over how independently the agent acts. Earned rather than configured: the system suggests dial-ups when reliability is demonstrated, the user approves them.</div>
+    </div>
+    <div class="matrix-row">
+      <div class="name">Sandbox, what-if</div>
+      <div class="note">A non-committing simulation. The agent runs the full pipeline against real data with no external effects, so the user can evaluate before any commitment.</div>
+    </div>
+    <div class="matrix-row">
+      <div class="name">Role-based approval</div>
+      <div class="note">Different surfaces for different stakeholders, built on the same underlying data. Working surface for the operator, outcome surface for the buyer, decision surface for the reviewer.</div>
+    </div>
+    <div class="matrix-row">
+      <div class="name">Hybrid intent → manipulation</div>
+      <div class="note">Language for ambiguous intent, direct manipulation for precise refinement. Edit means both at once: a real composer, with an "ask the agent" input alongside it.</div>
+    </div>
+
+  </div>
+</section>
+
+<section class="family">
+  <h2>Family A. Making the agent legible</h2>
+  <p class="section-sub">These build trust foundation. Apply to highest-stakes actions (sending emails in example below).</p>
+
+  <div class="pattern">
+    <div class="pattern-head">
+      <h3><span class="num">01</span> Intent preview</h3>
+    </div>
+    <p class="pattern-move">For when Agent is still in "suggest mode," user will see the recipient, the subject, the full body, the tone chosen, and the confidence band.</p>
+
+    <div class="mock-frame">
+      <div class="mock-card">
+        <div class="mock-banner aura">
+          <svg class="bot" viewBox="0 0 16 16" fill="currentColor"><rect x="2.5" y="3.5" width="11" height="9" rx="2"/><circle cx="6" cy="8" r="1.1" fill="white"/><circle cx="10" cy="8" r="1.1" fill="white"/></svg>
+          Confirm send · <span class="ent">INV-1042</span> · <span class="ent">AcmeCo</span>
+        </div>
+        <div class="mock-pad">
+          <div class="mock-meta">
+            <div class="k">To</div><div class="v">Maya Chen, AP manager (maya@acmeco.com)</div>
+            <div class="k">Subject</div><div class="v">INV-1042 — payment update?</div>
+            <div class="k">Includes</div><div class="v">Payment link, $4,200, invoice PDF</div>
+            <div class="k">Tone</div><div class="v">Friendly first nudge</div>
+          </div>
+          <div class="mock-body aura">Hi Maya — friendly nudge that <span class="ent">INV-1042</span> ($4,200) is two weeks past due. Easy payment link below. Let me know if anything's blocked on your side.</div>
+          <div class="between" style="margin-bottom: 12px;">
+            <div class="row">
+              <span class="pill good">Likely to pay</span>
+              <span class="muted" style="font-size: 12px;">14 of 18 invoices paid after first nudge</span>
+            </div>
+          </div>
+          <div class="btn-row">
+            <button class="btn primary">Send</button>
+            <button class="btn">Edit and regenerate</button>
+            <button class="btn">Skip today</button>
+            <button class="btn">Handle myself</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pattern">
+    <div class="pattern-head">
+      <h3><span class="num">02</span> Confidence + evidence</h3>
+    </div>
+    <p class="pattern-move">Confidence shows up as three calibrated bands rather than a precise-looking percentage. Evidence sits inline below each row, not in a hover, so the user can verify any score without leaving the queue.</p>
+
+    <div class="mock-frame">
+      <div class="mock-card">
+        <table class="mock-table">
+          <thead>
+            <tr>
+              <th>Customer, invoice</th>
+              <th class="num">Amount</th>
+              <th>Confidence</th>
+              <th>Evidence</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="ent">AcmeCo</span>, <span class="ent">INV-1042</span></td>
+              <td class="num">$4,200</td>
+              <td><span class="pill good">Likely</span></td>
+              <td><a href="#" style="color: var(--aura); text-decoration: none; font-size: 12px;">3 docs</a></td>
+            </tr>
+            <tr class="highlight">
+              <td><span class="ent" style="font-weight: 500;">Globex</span>, <span class="ent">INV-0934</span></td>
+              <td class="num">$28,400</td>
+              <td><span class="pill warn">Mixed</span></td>
+              <td><a href="#" style="color: var(--aura); text-decoration: none; font-size: 12px;">2 docs</a></td>
+            </tr>
+            <tr class="evidence">
+              <td colspan="4">
+                <div class="mock-label">Evidence — Globex</div>
+                <div class="ev-rows">
+                  <div>Average days to pay, 52, against 38 a year ago. Payment trend has slowed 2.1×.</div>
+                  <div>Pays after first nudge in 4 of 7 invoices.</div>
+                  <div>AP contact email updated May 1, no replies since.</div>
+                  <div>CSM health is medium. Last QBR April 14.</div>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td><span class="ent">Initech</span>, <span class="ent">INV-0879</span></td>
+              <td class="num">$18,900</td>
+              <td><span class="pill risk">At risk</span></td>
+              <td><a href="#" style="color: var(--aura); text-decoration: none; font-size: 12px;">4 docs</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="pattern">
+    <div class="pattern-head">
+      <h3><span class="num">03</span> Explainability on demand</h3>
+    </div>
+    <p class="pattern-move">The why panel surfaces what the agent inferred, what data it used, and what alternatives it considered and rejected. The third part is what makes the explanation feel like an audit log rather than a sales pitch.</p>
+
+    <div class="mock-frame">
+      <div class="mock-card">
+        <div class="mock-pad">
+          <div class="between" style="margin-bottom: 14px;">
+            <div>
+              <div style="font-size: 15px; font-weight: 500;">Why send firmer follow-up to <span class="ent">Globex</span>?</div>
+              <div class="muted" style="font-size: 13px; margin-top: 2px;"><span class="ent">INV-0934</span>, $28,400, 38 days late</div>
+            </div>
+            <span class="pill aura"><svg class="bot" viewBox="0 0 16 16" fill="currentColor"><rect x="2.5" y="3.5" width="11" height="9" rx="2"/><circle cx="6" cy="8" r="1.1" fill="white"/><circle cx="10" cy="8" r="1.1" fill="white"/></svg>Aura</span>
+          </div>
+          <div class="callout">
+            <div class="label">Inferred</div>
+            <div style="margin-bottom: 12px;">Globex is in a payment slowdown. Their AP contact recently changed, and the friendly nudge sent 14 days ago hasn't been replied to.</div>
+            <div class="label">Used data</div>
+            <div style="margin-bottom: 12px;">AR aging, contact change log, 12 months of payment history, CSM health signal, prior touch outcomes.</div>
+            <div class="label">Considered and rejected</div>
+            <div style="display: grid; gap: 4px;">
+              <div><span class="x">×</span> &nbsp; Repeat friendly nudge. Rejected because the prior nudge is already 14 days old without a reply.</div>
+              <div><span class="x">×</span> &nbsp; Escalate to AE. Rejected because the invoice sits under the $50k AE escalation threshold.</div>
+              <div><span class="x">×</span> &nbsp; Pause shipments. Out of scope — that's a CFO decision, not an agent one.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pattern">
+    <div class="pattern-head">
+      <h3><span class="num">04</span> Reversibility (Weakest of the UI, we should be catching these before we get to this issue)</h3>
+    </div>
+    <p class="pattern-move">Sent emails get a recovery surface: a one-click affordance.</p>
+
+    <div class="mock-frame">
+      <div class="mock-card">
+        <div class="mock-banner">Sent in error · <span class="ent">INV-1042</span> to <span class="ent">AcmeCo</span> · 23 minutes ago. Payment was already received April 30.</div>
+        <div class="mock-pad">
+          <div class="mock-label">Aura drafted correction</div>
+          <div class="mock-body aura">Hi Maya — apologies, the previous nudge on <span class="ent">INV-1042</span> was sent in error. Your payment cleared on April 30 and our records have been corrected on our side. Sorry for the confusion.<br><br>— Sent by <span class="ent aura-ref">Aura</span> on behalf of Saba</div>
+          <div class="btn-row" style="margin-bottom: 12px;">
+            <button class="btn primary">Send correction</button>
+            <button class="btn">Edit</button>
+            <button class="btn">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<section class="family">
+  <h2>Family B. Where the agent lives</h2>
+  <p class="section-sub">Where the agent appears in the product. Pick a primary surface, give nudges their own home, and surface the agent inline elsewhere in the UI.</p>
+
+  <div class="pattern">
+    <div class="pattern-head">
+      <h3><span class="num">05</span> Inline microinteraction</h3>
+    </div>
+    <p class="pattern-move">Agent lives outside a specific tab - meet user where they are, don't ask them to come to a specific destination. In the AR aging report, in customer detail views, anywhere the user is already looking.</p>
+
+    <div class="mock-frame">
+      <div class="mock-card">
+        <div class="mock-banner" style="background: var(--bg-tint); color: var(--ink-3); border-bottom: 1px solid var(--line-soft);">AR aging report, all customers, period 04/2026</div>
+        <table class="mock-table">
+          <thead>
+            <tr>
+              <th>Customer</th>
+              <th class="num">0–30</th>
+              <th class="num">31–60</th>
+              <th class="num">61–90</th>
+              <th class="num">90+</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="ent">AcmeCo</span></td>
+              <td class="num">$4,200</td>
+              <td></td><td></td><td></td>
+            </tr>
+            <tr class="highlight">
+              <td colspan="5" style="padding: 0;">
+                <div style="padding: 12px 20px;">
+                  <div style="display: grid; grid-template-columns: minmax(0,1fr) repeat(4, 80px); gap: 16px; font-size: 13px; align-items: center; margin-bottom: 10px;">
+                    <div style="font-weight: 500;"><span class="ent">Globex</span></div>
+                    <div></div>
+                    <div class="num" style="text-align: right;">$28,400</div>
+                    <div></div><div></div>
+                  </div>
+                  <div class="row" style="font-size: 12px;">
+                    <span class="pill aura"><svg class="bot" viewBox="0 0 16 16" fill="currentColor"><rect x="2.5" y="3.5" width="11" height="9" rx="2"/><circle cx="6" cy="8" r="1.1" fill="white"/><circle cx="10" cy="8" r="1.1" fill="white"/></svg>Aura</span>
+                    <span style="color: var(--ink-2);">38 days late, contact recently changed, firmer draft ready</span>
+                    <button class="btn tiny aura-ghost">Open in Collections</button>
+                    <button class="btn tiny">Snooze</button>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td><span class="ent">Brightline Logistics</span></td>
+              <td class="num">$12,800</td>
+              <td></td><td></td><td></td>
+            </tr>
+            <tr>
+              <td><span class="ent">Initech</span></td>
+              <td></td>
+              <td class="num">$18,900</td>
+              <td></td><td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="pattern">
+    <div class="pattern-head">
+      <h3><span class="num">06</span> Side panel, console</h3>
+    </div>
+    <p class="pattern-move">The Collections tab is a full-mode console. Goal at the top, queue and autonomy distribution as primary content. It's a state surface the user returns to throughout the day, not a chat that empties out between sessions.</p>
+
+    <div class="mock-frame">
+      <div class="mock-card">
+        <div class="mock-pad">
+          <div class="row" style="margin-bottom: 4px;">
+            <span class="pill aura"><svg class="bot" viewBox="0 0 16 16" fill="currentColor"><rect x="2.5" y="3.5" width="11" height="9" rx="2"/><circle cx="6" cy="8" r="1.1" fill="white"/><circle cx="10" cy="8" r="1.1" fill="white"/></svg>Aura, Collections</span>
+          </div>
+          <div class="muted" style="font-size: 13px; margin-bottom: 18px;">Goal — reduce DSO from 64 to 58 by EOM. 14 of 41 invoices addressed this week.</div>
+
+          <div class="grid-2" style="margin-bottom: 14px;">
+            <div class="callout">
+              <div class="label">Today's queue</div>
+              <div class="stat-row"><span>Ready to send</span><span class="v">6</span></div>
+              <div class="stat-row"><span>Needs judgment</span><span class="v">8</span></div>
+              <div class="stat-row"><span>Escalated to CFO</span><span class="v">2</span></div>
+              <div class="stat-row"><span>On hold (strategic)</span><span class="v">11</span></div>
+            </div>
+            <div class="callout">
+              <div class="label">Customer autonomy</div>
+              <div class="stat-row"><span>Stage 1, Shadow</span><span class="v">142</span></div>
+              <div class="stat-row"><span>Stage 2, Suggest</span><span class="v">88</span></div>
+              <div class="stat-row"><span>Stage 3, Auto with review</span><span class="v">24</span></div>
+              <div class="stat-row"><span>Stage 4, Auto</span><span class="v">0</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pattern">
+    <div class="pattern-head">
+      <h3><span class="num">07</span> Proactive nudge</h3>
+    </div>
+    <p class="pattern-move">A "things Agent noticed" tray catches behavioral signals: contact changes, payment-pattern shifts, dispute spikes. It sits separately from the action queue because nudges don't always have a clear next step. Each one has a snooze affordance, and the agent silences its own categories of nudge if they keep getting ignored.</p>
+
+    <div class="mock-frame">
+      <div class="mock-card">
+        <div class="mock-pad">
+          <div class="row" style="margin-bottom: 14px;">
+            <span class="pill aura"><svg class="bot" viewBox="0 0 16 16" fill="currentColor"><rect x="2.5" y="3.5" width="11" height="9" rx="2"/><circle cx="6" cy="8" r="1.1" fill="white"/><circle cx="10" cy="8" r="1.1" fill="white"/></svg>Things Aura noticed</span>
+            <span class="muted" style="font-size: 12px;">today, 3</span>
+          </div>
+
+          <div class="callout" style="margin-bottom: 10px;">
+            <div style="margin-bottom: 10px;"><span class="ent">Globex</span>'s AP contact email started bouncing yesterday. Pause sends until verified.</div>
+            <div class="btn-row">
+              <button class="btn tiny">Look</button>
+              <button class="btn tiny">Snooze 7d</button>
+              <button class="btn tiny">Not relevant</button>
+            </div>
+          </div>
+
+          <div class="callout" style="margin-bottom: 10px;">
+            <div style="margin-bottom: 10px;"><span class="ent">AcmeCo</span> paid the last 2 invoices in 60 days versus a 38-day historical average. Likely a payment slowdown.</div>
+            <div class="btn-row">
+              <button class="btn tiny">Look</button>
+              <button class="btn tiny">Snooze 7d</button>
+              <button class="btn tiny">Not relevant</button>
+            </div>
+          </div>
+
+          <div class="callout" style="margin-bottom: 10px;">
+            <div style="margin-bottom: 10px;"><span class="ent">Hooli</span> has 3 open disputes this quarter, up from 0 last year. Worth flagging to CSM.</div>
+            <div class="btn-row">
+              <button class="btn tiny">Look</button>
+              <button class="btn tiny">Route to CSM</button>
+              <button class="btn tiny">Not relevant</button>
+            </div>
+          </div>
+
+          <div class="muted" style="padding-top: 10px; border-top: 1px solid var(--line-soft); font-size: 12px; line-height: 1.5;">Aura silenced "small-balance unmatched payment" alerts after 3 ignored. <a href="#" style="color: var(--aura); text-decoration: none;">undo</a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<section class="family">
+  <h2>Family C. Calibrating the partnership</h2>
+  <p class="section-sub">How the user and the agent share control over time. Maturity model, shadow week, dual stakeholder surfaces, hybrid edit flow.</p>
+
+  <div class="pattern">
+    <div class="pattern-head">
+      <h3><span class="num">08</span> Autonomy dial</h3>
+    </div>
+    <p class="pattern-move">The maturity model rendered per customer. Each stage transition is earned by demonstrated reliability rather than scheduled. Agent proposes dial-ups when a customer's track record warrants it, and the user approves.</p>
+
+    <div class="mock-frame">
+      <div class="mock-card">
+        <div class="mock-pad">
+          <div class="between" style="margin-bottom: 12px;">
+            <div>
+              <div style="font-size: 14px; font-weight: 500;"><span class="ent">AcmeCo</span>, current stage 2, suggest</div>
+              <div class="muted" style="font-size: 13px; margin-top: 2px;">Auto-sends invoices under $5k at high confidence. Queues the rest.</div>
+            </div>
+          </div>
+
+          <div class="track">
+            <div class="track-stage done"><div class="dot"></div><div class="label">1, Shadow</div></div>
+            <div class="track-stage current"><div class="dot"></div><div class="label">2, Suggest</div></div>
+            <div class="track-stage"><div class="dot"></div><div class="label">3, Auto with review</div></div>
+            <div class="track-stage"><div class="dot"></div><div class="label">4, Auto</div></div>
+          </div>
+
+          <div class="callout" style="margin-bottom: 14px;">
+            <div class="label">To earn stage 3</div>
+            <div style="line-height: 1.8;">
+              <div>Override rate under 2% over 90 days. <span class="pos">Currently 0.8% over 41 days.</span></div>
+              <div>Clean audit log. <span class="pos">No incidents.</span></div>
+              <div>Controller signoff at the transition.</div>
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <button class="btn aura-ghost">Apply to similar customers (12)</button>
+            <button class="btn">Configure manually</button>
+            <button class="btn">Hold at stage 2</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pattern">
+    <div class="pattern-head">
+      <h3><span class="num">09</span> Sandbox, what-if</h3>
+    </div>
+    <p class="pattern-move">Shadow week mode runs the full agent pipeline against real data: drafting, scoring, prioritizing. Nothing leaves the system. The buyer evaluates the agent against their own book before any external sends, and the reviewed-draft volume earned in shadow mode counts toward the first stage transition.</p>
+
+    <div class="mock-frame">
+      <div class="mock-card">
+        <div class="mock-banner">Shadow week, May 4–10, uncommitted. Zero emails went out.</div>
+        <div class="mock-pad">
+          <div class="mock-label">Predicted outcomes if Aura had run live</div>
+          <table class="mock-table" style="margin: 0 -20px;">
+            <tbody>
+              <tr><td>Emails Aura would have sent</td><td class="num">41</td></tr>
+              <tr><td>Predicted cash receipts shifted earlier</td><td class="num pos">+$284k</td></tr>
+              <tr><td>DSO impact versus current trajectory</td><td class="num pos">−3.2 days</td></tr>
+              <tr><td>Predicted disputes triggered</td><td class="num">1, Globex contact issue</td></tr>
+              <tr><td>Override rate (drafts you'd reject)</td><td class="num">~6%</td></tr>
+            </tbody>
+          </table>
+          <div class="btn-row" style="margin-top: 16px;">
+            <button class="btn">Run another shadow week</button>
+            <button class="btn primary">Commit and go live</button>
+            <button class="btn danger">Discard run</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pattern">
+    <div class="pattern-head">
+      <h3><span class="num">10</span> Role-based approval</h3>
+    </div>
+    <p class="pattern-move">The controller and the CFO are not the same user with different permissions. They are different surfaces built on the same underlying data. Working surface for the operator. Outcome surface for the buyer. Each one is its own product, designed for the decision that user is actually making.</p>
+
+    <div class="mock-frame">
+      <div class="grid-2">
+        <div class="mock-card">
+          <div class="mock-pad">
+            <div class="mock-label">Controller, Saba, daily</div>
+            <div style="font-size: 14px; font-weight: 500; margin-bottom: 10px;">Today's queue</div>
+            <div class="stat-row"><span>Ready to send</span><span class="v">6</span></div>
+            <div class="stat-row"><span>Needs judgment</span><span class="v">8</span></div>
+            <div class="stat-row"><span>Escalated to CFO</span><span class="v">2</span></div>
+            <div class="callout" style="margin-top: 12px; font-size: 12px;">Working surface. Drafts, evidence, edit, send.</div>
+          </div>
+        </div>
+        <div class="mock-card">
+          <div class="mock-pad">
+            <div class="mock-label">CFO, Patel, monthly</div>
+            <div style="font-size: 14px; font-weight: 500; margin-bottom: 10px;">Outcome dashboard</div>
+            <div class="stat-row"><span>DSO this month</span><span class="v">64 → 61</span></div>
+            <div class="stat-row"><span>Cash collected vs forecast</span><span class="v pos">+$94k</span></div>
+            <div class="stat-row"><span>Override rate</span><span class="v">4.1% ↓</span></div>
+            <div class="stat-row"><span>Hours reclaimed</span><span class="v">38</span></div>
+            <div class="stat-row"><span>At-risk accounts</span><span class="v">5</span></div>
+            <div class="callout" style="margin-top: 12px; font-size: 12px;">Outcome surface. The CFO doesn't open the agent. They see the numbers it moved.</div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top: 12px; padding: 12px 16px; background: var(--aura-soft); border: 1px solid var(--aura-border); border-radius: var(--r-md); font-size: 12px; color: var(--aura-text); line-height: 1.6;">CSM and AE escalation surfaces follow the same pattern. Same evidence reachable, layout shaped to the reviewer's specific decision.</div>
+    </div>
+  </div>
+
+  <div class="pattern">
+    <div class="pattern-head">
+      <h3><span class="num">11</span> Hybrid intent → manipulation</h3>
+    </div>
+    <p class="pattern-move">Edit means both at once. A real composer for word-level changes, with an "ask AI" input next to it for intent-level changes like "make it firmer" or "mention the ship pause." The user switches between language and manipulation depending on the situation. Without this, the four edits per batch become the bottleneck.</p>
+
+    <div class="mock-frame">
+      <div class="grid-3-2">
+        <div class="mock-card">
+          <div class="mock-pad">
+            <div class="mock-label">Email composer, direct manipulation</div>
+            <div class="mock-meta">
+              <div class="k">To</div><div class="v">maya@acmeco.com</div>
+              <div class="k">Subject</div><div class="v">INV-1042 — payment status update</div>
+            </div>
+            <div class="mock-body" style="min-height: 120px;">Hi Maya — following up on <span class="ent">INV-1042</span> ($4,200), now <span style="background: var(--warn-bg); color: var(--warn-text); padding: 1px 4px; border-radius: 3px;">three weeks</span> past due. We may need to <span style="background: var(--warn-bg); color: var(--warn-text); padding: 1px 4px; border-radius: 3px;">pause shipments scheduled for next week</span> if this isn't resolved by Friday. Please confirm receipt and let me know your timeline.</div>
+            <div class="btn-row">
+              <button class="btn primary">Send</button>
+              <button class="btn">Save draft</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="ask-aura">
+          <div class="row" style="margin-bottom: 10px;">
+            <span class="pill aura"><svg class="bot" viewBox="0 0 16 16" fill="currentColor"><rect x="2.5" y="3.5" width="11" height="9" rx="2"/><circle cx="6" cy="8" r="1.1" fill="white"/><circle cx="10" cy="8" r="1.1" fill="white"/></svg>Ask Aura</span>
+          </div>
+          <div class="input">make it firmer and mention we may pause shipments if not resolved by Friday</div>
+          <button class="btn primary" style="width: 100%; margin-bottom: 14px;">Regenerate</button>
+          <div class="mock-label">History</div>
+          <div style="display: grid; gap: 4px; font-size: 12px;">
+            <div style="color: var(--ink-4); padding: 4px 0;">v1, original draft</div>
+            <div style="background: var(--bg); border: 1px solid var(--aura-border); color: var(--aura-text); padding: 6px 8px; border-radius: 4px;">v2, firmer with ship pause, current</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+</div>
+
+</body>
+</html>
